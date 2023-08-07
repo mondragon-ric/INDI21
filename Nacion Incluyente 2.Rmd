@@ -1,0 +1,73 @@
+---
+title: "Nacion Incluyente 2"
+author: "Richard Mondragon Aguilar"
+date: "5/8/2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+#Cargar librerías
+knitr::opts_chunk$set(include = FALSE)
+list.of.packages <- c("dygraphs", "xts", "tidyverse", "lubridate", "dplyr", "sf", "ggplot2", "readxl", "stringr", "RColorBrewer", "scales", "leaflet", "htmltools", "kableExtra", "plotly", "rgdal", "leaflet", "plotly", "DT")
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+if(length(new.packages))  
+  install.packages(new.packages)
+
+lapply(list.of.packages, require, character.only = TRUE)
+```
+
+```{r echo=FALSE, include=FALSE}
+#Cargar el mapa
+mapa <- readOGR("C:\\Users\\richa\\OneDrive - CIDE\\1er Semestre-DESKTOP-RPQUJJA\\Manejo de bases de datos\\Nacion Incluyente", layer="republica")
+```
+
+```{r echo=FALSE, include=FALSE}
+#Cargar los datos
+datos <- read_excel("Concentrado.xlsx")
+```
+
+```{r echo=FALSE, include=FALSE}
+#Seleccionar los datos de educación
+datos_edu <- datos[,1:2]
+
+datos_edu$`Educación Incluyente` <- round(datos_edu$`Educación Incluyente`*100, 2)
+```
+
+¿QUÉ ES LA EDUCACIÓN INCLUYENTE?
+
+Es la oportunidad que tiene la sociedad de poder ejercer el derecho fundamental a la educación, eliminando cualquier barrera de género, etnia, discapacidad y estrato socioeconómico. El acceso ala educación no es suficiente si no hay calidad, así que la educación incluyente debe asegurar la debida calidad de la infraestructura e instalaciones, así como de los docentes.
+
+```{r echo=FALSE, include=TRUE}
+#Crear la tabla
+datatable(datos_edu ,class = 'cell-border stripe')
+```
+```{r echo=FALSE, include=FALSE}
+#Agregar los datos al mapa 
+mapa@data$EDU <- as.numeric(datos_edu$`Educación Incluyente`)
+cut(mapa@data$EDU, 5)
+```
+
+```{r echo=FALSE, include=TRUE}
+#Configurar el mapa 
+textos <- paste(
+  "Estado : ",mapa$NOMGEO ,"<br/>",
+  "Puntaje: ", round(mapa$EDU,2) ) %>% lapply(htmltools::HTML)
+
+cortes <- c(0, 66.4, 72.7, 78.9, 85.1, 91.4, 97.6, Inf)
+colores <- colorBin( palette="PuRd", 
+                     domain=mapa$EDU, 
+                     na.color="transparent", 
+                     bins=cortes) 
+
+leaflet(data=mapa) %>% 
+  addTiles() %>% 
+  addPolygons(label = textos, 
+              fillColor = colores(mapa$EDU),
+              fillOpacity = 0.9,
+              color="#D4B9DA",
+              weight=2) %>%
+  leaflet::addLegend("bottomright", pal = colores, values = ~EDU,
+              title = "Puntaje",
+              #labFormat = labelFormat(prefix = "$"),
+              opacity = 1 )
+```

@@ -1,0 +1,535 @@
+---
+title: "Nación Incluyente 1"
+author: "Richard Mondragon Aguilar"
+date: "20/12/2021"
+output:
+    html_document:
+      pandoc_args: ["+RTS", "-K64m",
+      "-RTS"]
+    toc: TRUE
+    toc_depth: 3
+    toc_float: TRUE
+    css: "estilo.css"
+---
+
+# Educación Incluyente
+
+```{r setup, include=FALSE}
+#Cargar librerías
+knitr::opts_chunk$set(include = FALSE)
+list.of.packages <- c("dygraphs", "xts", "tidyverse", "lubridate", "dplyr", "sf", "ggplot2", "readxl", "stringr", "RColorBrewer", "scales", "leaflet", "htmltools", "kableExtra", "plotly", "rgdal", "leaflet", "plotly", "DT")
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+if(length(new.packages))  
+  install.packages(new.packages)
+
+lapply(list.of.packages, require, character.only = TRUE)
+
+```
+
+```{r echo=FALSE, include=FALSE}
+#Cargar el mapa
+mapa <- readOGR("C:\\Users\\richa\\OneDrive - CIDE\\1er Semestre-DESKTOP-RPQUJJA\\Manejo de bases de datos\\Nacion Incluyente", layer="republica")
+```
+
+```{r echo=FALSE, include=FALSE}
+datos <- read_excel("Concentrado.xlsx")
+```
+
+```{r echo=FALSE, include=FALSE}
+datos_edu <- datos[,1:2]
+
+datos_edu$`Educación Incluyente` <- round(datos_edu$`Educación Incluyente`*100, 2)
+```
+
+¿QUÉ ES LA EDUCACIÓN INCLUYENTE?
+
+Es la oportunidad que tiene la sociedad de poder ejercer el derecho fundamental a la educación, eliminando cualquier barrera de género, etnia, discapacidad y estrato socioeconómico. El acceso ala educación no es suficiente si no hay calidad, así que la educación incluyente debe asegurar la debida calidad de la infraestructura e instalaciones, así como de los docentes.
+
+```{r echo=FALSE, include=TRUE}
+datatable(datos_edu ,class = 'cell-border stripe')
+```
+
+
+
+```{r echo=FALSE, include=FALSE}
+
+mapa@data$EDU <- as.numeric(datos_edu$`Educación Incluyente`)
+
+```
+
+```{r echo=FALSE, include=FALSE}
+cut(mapa@data$EDU, 5)
+```
+
+```{r echo=FALSE, include=TRUE}
+textos <- paste(
+  "Estado : ",mapa$NOMGEO ,"<br/>",
+  "Puntaje: ", round(mapa$EDU,2) ) %>% lapply(htmltools::HTML)
+
+cortes <- c(0, 66.4, 72.7, 78.9, 85.1, 91.4, 97.6, Inf)
+colores <- colorBin( palette="PuRd", 
+                     domain=mapa$EDU, 
+                     na.color="transparent", 
+                     bins=cortes) 
+
+leaflet(data=mapa) %>% 
+  addTiles() %>% 
+  addPolygons(label = textos, 
+              fillColor = colores(mapa$EDU),
+              fillOpacity = 0.9,
+              color="#D4B9DA",
+              weight=2) %>%
+  leaflet::addLegend("bottomright", pal = colores, values = ~EDU,
+              title = "Puntaje",
+              #labFormat = labelFormat(prefix = "$"),
+              opacity = 1 )
+```
+
+# Servicios Básicos e Infraestructura Para Todos 
+
+```{r echo=FALSE, include=FALSE}
+datos_serv <- datos[,c(1,3)]
+
+datos_serv$`Servicios Básicos e Infraestructura para Todos` <- round(datos_serv$`Servicios Básicos e Infraestructura para Todos`*100, 2)
+
+```
+
+¿QUÉ SON LOS SERVICIOS BÁSICOS E INFRAESTRUCTURA PARA TODOS?
+
+Es el acceso que tienen los ciudadanos a servicios como el transporte público eficiente, internet y otros como los relacionados con la salud. También se incorporó la calidad de las viviendas y los servicios relacionados con las mismas como drenaje, alcantarillado y electricidad.
+
+```{r echo=FALSE, include=TRUE}
+datatable(datos_serv ,class = 'cell-border stripe')
+```
+
+```{r echo=FALSE, include=FALSE}
+mapa@data$SERV <- as.numeric(datos_serv$`Servicios Básicos e Infraestructura para Todos`)
+```
+
+```{r echo=FALSE, include=FALSE}
+cut(mapa@data$SERV, 5)
+```
+
+```{r echo=FALSE, include=TRUE}
+textos <- paste(
+  "Estado : ",mapa$NOMGEO ,"<br/>",
+  "Puntaje: ", round(mapa$SERV,2) ) %>% lapply(htmltools::HTML)
+
+cortes <- c(0, 28.4, 37.7, 47.1, 56.4, 65.8, 75.1, Inf)
+colores <- colorBin( palette="Reds", 
+                     domain=mapa$SERV, 
+                     na.color="transparent", 
+                     bins=cortes) 
+
+leaflet(data=mapa) %>% 
+  addTiles() %>% 
+  addPolygons(label = textos, 
+              fillColor = colores(mapa$SERV),
+              fillOpacity = 0.9,
+              color="#EFC000FF",
+              weight=2) %>%
+  leaflet::addLegend("bottomright", pal = colores, values = ~SERV,
+              title = "Puntaje",
+              #labFormat = labelFormat(prefix = "$"),
+              opacity = 1 )
+```
+
+# Ambiente Empresarial y Emprendimiento
+
+```{r echo=FALSE, include=FALSE}
+datos_empr <- datos[,c(1,4)]
+
+datos_empr$`Ambiente Empresarial y Emprendimiento` <- round(datos_empr$`Ambiente Empresarial y Emprendimiento` *100, 2)
+
+```
+
+¿QUÉ ES EL AMBIENTE EMPRESARIAL Y EMPRENDIMIENTO?
+
+Una empresa es la iniciativa que un individuo asume al adquirir un riesgo económico o que invierte recursos con el objetivo de aprovechar una oportunidad que brinda el mercado; además, las empresas son la principal fuente de generación de empleos. Por lo anterior, resulta fundamental crear un ambiente empresarial adecuado, flexible y capaz de ofrecer condiciones pertinentes para aumentar el número de empresas.
+
+```{r echo=FALSE, include=TRUE}
+datatable(datos_empr ,class = 'cell-border stripe')
+```
+
+```{r echo=FALSE, include=FALSE}
+mapa@data$EMPR <- as.numeric(datos_empr$`Ambiente Empresarial y Emprendimiento`)
+```
+
+```{r echo=FALSE, include=FALSE}
+cut(mapa@data$EMPR, 5)
+```
+
+```{r echo=FALSE, include=TRUE}
+textos <- paste(
+  "Estado : ",mapa$NOMGEO ,"<br/>",
+  "Puntaje: ", round(mapa$EMPR,2) ) %>% lapply(htmltools::HTML)
+
+cortes <- c(0, 25, 33.2, 41.4, 49.6, 57.8, 66, Inf)
+colores <- colorBin( palette="RdBu", 
+                     domain=mapa$EMPR, 
+                     na.color="transparent", 
+                     bins=cortes) 
+
+leaflet(data=mapa) %>% 
+  addTiles() %>% 
+  addPolygons(label = textos, 
+              fillColor = colores(mapa$EMPR),
+              fillOpacity = 0.9,
+              color="#D1E5F0",
+              weight=2) %>%
+  leaflet::addLegend("bottomright", pal = colores, values = ~EMPR,
+              title = "Puntaje",
+              #labFormat = labelFormat(prefix = "$"),
+              opacity = 1 )
+```
+
+# Inclusión Financiera
+
+```{r echo=FALSE, include=FALSE}
+datos_incl <- datos[,c(1,5)]
+
+datos_incl$`Inclusión Financiera` <- round(datos_incl$`Inclusión Financiera` *100, 2)
+
+```
+
+¿QUÉ ES LA INCLUSIÓN FINANCIERA?
+
+La inclusión financiera significa que las personas físicas y morales tienen acceso a productos financieros útiles y asequibles que satisfacen sus necesidades (transacciones, pagos, ahorros, crédito y seguro) prestados de manera responsable y sostenible. También incluye el acceso de los servicios financieros, con especial énfasis en la banca para los más pobres y marginados.
+
+```{r echo=FALSE, include=TRUE}
+datatable(datos_incl ,class = 'cell-border stripe')
+```
+
+```{r echo=FALSE, include=FALSE}
+mapa@data$INCL <- as.numeric(datos_incl$`Inclusión Financiera`)
+```
+
+```{r echo=FALSE, include=FALSE}
+cut(mapa@data$INCL, 5)
+```
+
+```{r echo=FALSE, include=TRUE}
+textos <- paste(
+  "Estado : ",mapa$NOMGEO ,"<br/>",
+  "Puntaje: ", round(mapa$INCL,2) ) %>% lapply(htmltools::HTML)
+
+cortes <- c(0, 11.4, 25.5, 39.5, 53.4, 67.4, 81.5, Inf)
+colores <- colorBin( palette="BuGn", 
+                     domain=mapa$INCL, 
+                     na.color="transparent", 
+                     bins=cortes) 
+
+leaflet(data=mapa) %>% 
+  addTiles() %>% 
+  addPolygons(label = textos, 
+              fillColor = colores(mapa$INCL),
+              fillOpacity = 0.9,
+              color="#99D8C9",
+              weight=2) %>%
+  leaflet::addLegend("bottomright", pal = colores, values = ~INCL,
+              title = "Puntaje",
+              #labFormat = labelFormat(prefix = "$"),
+              opacity = 1 )
+```
+
+# Ética Política y Empresarial
+
+```{r echo=FALSE, include=FALSE}
+datos_eti <- datos[, c(1,6)]
+
+datos_eti$`Ética Política y Empresarial` <- round(datos_eti$`Ética Política y Empresarial`*100,2)
+```
+
+¿QUÉ ES LA ÉTICA POLÍTICA Y EMPRESARIAL?
+
+Es el estado ideal donde el gobierno, la sociedad y el sector empresarial pueden convivir, buscando el bienestar de todas las partes, éste podría alcanzarse en la medida en que los ciudadanos confían en sus instituciones y en el buen manejo de sus contribuciones.
+
+```{r echo=FALSE, include=TRUE}
+datatable(datos_eti, class = 'cell-border stripe')
+```
+
+```{r echo=FALSE, include=FALSE}
+mapa@data$ETI <- as.numeric(datos_eti$`Ética Política y Empresarial`)
+```
+
+```{r echo=FALSE, include=FALSE}
+cut(mapa@data$ETI, 5)
+```
+
+```{r echo=FALSE, include=TRUE}
+textos <- paste(
+  "Estado : ",mapa$NOMGEO ,"<br/>",
+  "Puntaje: ", round(mapa$ETI,2) ) %>% lapply(htmltools::HTML)
+
+cortes <- c(0, 36.4, 47.2, 57.9, 68.5, 79.2, 90, Inf)
+colores <- colorBin( palette="Accent", 
+                     domain=mapa$ETI, 
+                     na.color="transparent", 
+                     bins=cortes) 
+
+leaflet(data=mapa) %>% 
+  addTiles() %>% 
+  addPolygons(label = textos, 
+              fillColor = colores(mapa$ETI),
+              fillOpacity = 0.9,
+              color="#BEAED4",
+              weight=2) %>%
+  leaflet::addLegend("bottomright", pal = colores, values = ~ETI,
+              title = "Puntaje",
+              #labFormat = labelFormat(prefix = "$"),
+              opacity = 1 )
+```
+
+# Inclusión Laboral 
+
+```{r echo=FALSE, include=FALSE}
+datos_lab <- datos[, c(1,7)]
+
+datos_lab$`Inclusión Laboral` <-  round(datos_lab$`Inclusión Laboral`*100,2)
+```
+
+¿QUÉ ES LA INCLUSIÓN LABORAL?
+
+La inclusión laboral significa la posibilidad de la población para acceder a nuevas y mejores oportunidades laborales, con una remuneración acorde al trabajo realizado; así como a prestaciones básicas por ley. Todo esto en un marco jurídico de respeto a los trabajadores que catalice sus habilidades y aprendizajes en pro del desarrollo económico. En este pilar se incluyeron variables relacionadas con el empleo informal, el desempleo y el salario, las cuales permiten vislumbrar un panorama sobre los aspectos específicos en los que se debe trabajar para lograr un mercado laboral inclusivo y de oportunidades.
+
+```{r echo=FALSE, include=TRUE}
+datatable(datos_lab, class = 'cell-border stripe')
+```
+```{r echo=FALSE, include=FALSE}
+mapa@data$LAB <- as.numeric(datos_lab$`Inclusión Laboral`)
+```
+
+```{r echo=FALSE, include=FALSE}
+cut(mapa@data$LAB, 5)
+```
+
+```{r echo=FALSE, include=TRUE}
+textos <- paste(
+  "Estado : ",mapa$NOMGEO ,"<br/>",
+  "Puntaje: ", round(mapa$LAB,2) ) %>% lapply(htmltools::HTML)
+
+cortes <- c(0, 23.9, 35.7, 47.5, 59.2, 70.9, 82.7, Inf)
+colores <- colorBin( palette="Purples", 
+                     domain=mapa$LAB, 
+                     na.color="transparent", 
+                     bins=cortes) 
+
+leaflet(data=mapa) %>% 
+  addTiles() %>% 
+  addPolygons(label = textos, 
+              fillColor = colores(mapa$LAB),
+              fillOpacity = 0.9,
+              color="#BCBDDC",
+              weight=2) %>%
+  leaflet::addLegend("bottomright", pal = colores, values = ~LAB,
+              title = "Puntaje",
+              #labFormat = labelFormat(prefix = "$"),
+              opacity = 1 )
+```
+
+# Desempeño Fiscal y Transferencias
+
+```{r echo=FALSE, include=FALSE}
+datos_fisc <- datos[,c(1,8)]
+
+datos_fisc$`Desempeño Fiscal y Transferencias` <- round(datos_fisc$`Desempeño Fiscal y Transferencias`*100, 2)
+```
+
+¿QUÉ ES EL DESEMPEÑO FISCAL Y LAS TRANSFERENCIAS?
+
+La medición del desempeño fiscal permite conocer la capacidad que tiene el gobierno para recaudar recursos y con base en esta información, evaluar si los recursos obtenidos se invierten de la forma adecuada para aumentar la calidad de vida de la población y mejorar la infraestructura pública para atraer inversiones.
+
+Por otro lado, las transferencias son estímulos en forma de reducciones o exenciones en el pago de ciertos impuestos que se concede a los sujetos pasivos para promover la realización de determinadas actividades consideradas de interés público por el Estado.
+
+```{r echo=FALSE, include=TRUE}
+datatable(datos_fisc, class = 'cell-border stripe')
+```
+
+```{r echo=FALSE, include=FALSE}
+mapa@data$FISC <- as.numeric(datos_fisc$`Desempeño Fiscal y Transferencias`)
+```
+
+```{r echo=FALSE, include=FALSE}
+cut(mapa@data$FISC, 5)
+```
+
+```{r echo=FALSE, include=TRUE}
+textos <- paste(
+  "Estado : ",mapa$NOMGEO ,"<br/>",
+  "Puntaje: ", round(mapa$FISC,2) ) %>% lapply(htmltools::HTML)
+
+cortes <- c(0, 21.9, 35, 48, 61, 74, 87.1, Inf)
+colores <- colorBin( palette="YlGnBu", 
+                     domain=mapa$FISC, 
+                     na.color="transparent", 
+                     bins=cortes) 
+
+leaflet(data=mapa) %>% 
+  addTiles() %>% 
+  addPolygons(label = textos, 
+              fillColor = colores(mapa$FISC),
+              fillOpacity = 0.9,
+              color="#081D58",
+              weight=2) %>%
+  leaflet::addLegend("bottomright", pal = colores, values = ~FISC,
+              title = "Puntaje",
+              #labFormat = labelFormat(prefix = "$"),
+              opacity = 1 )
+```
+
+# Brecha de Género
+
+```{r echo=FALSE, include=FALSE}
+datos_gen <- datos[, c(1, 9)]
+
+datos_gen$`Brecha de Género` <- round(datos_gen$`Brecha de Género`*100,2)
+```
+
+¿QUÉ ES LA BRECHA DE GÉNERO?
+
+Es la distinción en el acceso a oportunidades laborales y sociales según el género, en donde las mujeres resultan las más vulnerables debido a la errónea concepción de que el género femenino no debería actuar en la economía y en la sociedad sin el acompañamiento de un hombre.
+
+Bajo este contexto, se usó al menos un indicador por pilar para conocer la participación de las mujeres y su aportación en materia de inclusión económica.
+
+```{r echo=FALSE, include=TRUE}
+datatable(datos_gen, class = 'cell-border stripe')
+```
+
+```{r echo=FALSE, include=FALSE}
+mapa@data$GEN <- datos_gen$`Brecha de Género`
+```
+
+```{r echo=FALSE, include=FALSE}
+cut(mapa@data$GEN, 5)
+```
+
+```{r echo=FALSE, include=TRUE}
+textos <- paste(
+  "Estado : ",mapa$NOMGEO ,"<br/>",
+  "Puntaje: ", round(mapa$GEN,2) ) %>% lapply(htmltools::HTML)
+
+cortes <- c(0, 41, 47, 53, 59, 65, 71, Inf)
+colores <- colorBin( palette="PiYG", 
+                     domain=mapa$GEN, 
+                     na.color="transparent", 
+                     bins=cortes) 
+
+leaflet(data=mapa) %>% 
+  addTiles() %>% 
+  addPolygons(label = textos, 
+              fillColor = colores(mapa$GEN),
+              fillOpacity = 0.9,
+              color="#4D9221",
+              weight=2) %>%
+  leaflet::addLegend("bottomright", pal = colores, values = ~GEN,
+              title = "Puntaje",
+              #labFormat = labelFormat(prefix = "$"),
+              opacity = 1 )
+```
+
+# Certeza de la Propiedad
+
+```{r echo=FALSE, include=FALSE}
+datos_cert <- datos[, c(1,11)]
+
+datos_cert$`Certeza de la propiedad` <- round(datos_cert$`Certeza de la propiedad`*100,2)
+```
+
+¿QUÉ ES LA CERTEZA DE LA PROPIEDAD?
+
+Se refiere a la capacidad del gobierno estatal para inventariar los predios existentes y brindar servicios a la ciudadanía para que obtengan sus títulos de propiedad, además de cualificar y cuantificar el uso de suelo. En la medida en que más personas cuenten con la certeza de su propiedad podrán usarlo para su desarrollo personal o profesional, en la medida que un gobierno conozca cómo está conformado su territorio, podrá hacer una mejor planeación urbana.
+
+```{r echo=FALSE, include=TRUE}
+datatable(datos_cert, class = 'cell-border stripe')
+```
+
+```{r echo=FALSE, include=FALSE}
+mapa@data$CERT <- datos_cert$`Certeza de la propiedad`
+```
+
+```{r echo=FALSE, include=FALSE}
+cut(mapa@data$CERT, 5)
+```
+
+```{r echo=FALSE, include=TRUE}
+textos <- paste(
+  "Estado : ",mapa$NOMGEO ,"<br/>",
+  "Puntaje: ", round(mapa$CERT,2) ) %>% lapply(htmltools::HTML)
+
+cortes <- c(0, 6.93, 21.5, 35.9, 50.4, 64.9, 79.4, Inf)
+colores <- colorBin( palette="Dark2", 
+                     domain=mapa$CERT, 
+                     na.color="transparent", 
+                     bins=cortes) 
+
+leaflet(data=mapa) %>% 
+  addTiles() %>% 
+  addPolygons(label = textos, 
+              fillColor = colores(mapa$CERT),
+              fillOpacity = 0.9,
+              color="#666666",
+              weight=2) %>%
+  leaflet::addLegend("bottomright", pal = colores, values = ~CERT,
+              title = "Puntaje",
+              #labFormat = labelFormat(prefix = "$"),
+              opacity = 1 )
+```
+
+# Desarrollo Social
+
+```{r echo=FALSE, include=FALSE}
+datos_desa <- datos[,c(1,10)]
+
+datos_desa$`Desarrollo Inclusivo` <- round(datos_desa$`Desarrollo Inclusivo`*100,2)
+```
+
+¿QUÉ ES EL DESARROLLO SOCIAL?
+
+El desarrollo social se centra, principalmente, en la medición de la pobreza en cada entidad federativa; misma que ha sido desarrollada, tradicional y mayoritariamente, desde una perspectiva unidimensional, en la cual se utiliza al ingreso como una aproximación del bienestar económico de la población. Sin embargo, el concepto de pobreza comprende diversos componentes y dimensiones, es decir, se trata de un fenómeno multidimensional que no puede ser considerado, única y exclusivamente, por los bienes y servicios que las personas pueden adquirir en el mercado.
+
+```{r echo=FALSE, include=TRUE}
+datatable(datos_desa, class = 'cell-border stripe')
+```
+
+```{r echo=FALSE, include=FALSE}
+mapa@data$DESA <- as.numeric(datos_desa$`Desarrollo Inclusivo`)
+```
+
+```{r echo=FALSE, include=FALSE}
+cut(mapa@data$DESA, 5)
+```
+
+```{r echo=FALSE, include=TRUE}
+textos <- paste(
+  "Estado : ",mapa$NOMGEO ,"<br/>",
+  "Puntaje: ", round(mapa$DESA,2) ) %>% lapply(htmltools::HTML)
+
+cortes <- c(0, 45, 50.2, 55.4, 60.6, 65.8, 71, Inf)
+colores <- colorBin( palette="Set3", 
+                     domain=mapa$DESA, 
+                     na.color="transparent", 
+                     bins=cortes) 
+
+leaflet(data=mapa) %>% 
+  addTiles() %>% 
+  addPolygons(label = textos, 
+              fillColor = colores(mapa$DESA),
+              fillOpacity = 0.9,
+              color="#D9D9D9",
+              weight=2) %>%
+  leaflet::addLegend("bottomright", pal = colores, values = ~DESA,
+              title = "Puntaje",
+              #labFormat = labelFormat(prefix = "$"),
+              opacity = 1 )
+```
+
+
+
+
+
+
+
+
+
+
+
