@@ -1,8 +1,11 @@
 ---
-title: "Nacion Incluyente 2"
+title: "Nacion Incluyente Demo"
 author: "Richard Mondragon Aguilar"
-date: "5/8/2023"
-output: html_document
+date: "20/12/2021"
+always_allow_html: true
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}

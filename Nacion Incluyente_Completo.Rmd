@@ -1,5 +1,5 @@
 ---
-title: "Nación Incluyente 1"
+title: "Nación Incluyente Completo"
 author: "Richard Mondragon Aguilar"
 date: "20/12/2021"
 output:
